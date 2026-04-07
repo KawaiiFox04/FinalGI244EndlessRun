@@ -451,11 +451,11 @@ Transform:
   m_GameObject: {fileID: 707576158}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.8783906, y: 0, z: -5.756781}
-  m_LocalScale: {x: 1.3185481, y: 1.3185481, z: 1.3185481}
+  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1637612547}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &707576162
 MonoBehaviour:
@@ -860,8 +860,6 @@ GameObject:
   - component: {fileID: 1637612546}
   - component: {fileID: 1637612545}
   - component: {fileID: 1637612544}
-  - component: {fileID: 1637612550}
-  - component: {fileID: 1637612549}
   - component: {fileID: 1637612548}
   m_Layer: 0
   m_Name: Player
@@ -958,8 +956,7 @@ Transform:
   m_LocalPosition: {x: -2.183, y: 1, z: -5.634}
   m_LocalScale: {x: 0.75841, y: 0.75841, z: 0.75841}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 707576161}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1637612548
@@ -989,35 +986,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &1637612549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1637612543}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88871a2a6b51fe24dbced47a012c049e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHp: 3
-  currentHp: 0
-  isShielded: 0
-  shieldVFX: {fileID: 0}
---- !u!114 &1637612550
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1637612543}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3aeab0673577ee94d97724491dfdbe72, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 10
 --- !u!1 &1769035614
 GameObject:
   m_ObjectHideFlags: 0
@@ -1223,6 +1191,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1769035616}
+  - {fileID: 707576161}
   - {fileID: 1637612547}
   - {fileID: 347030235}
   - {fileID: 2016424651}

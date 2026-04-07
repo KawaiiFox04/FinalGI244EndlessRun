@@ -1,41 +1,105 @@
 using UnityEngine;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance;
+    public static GameManager Instance { get; private set; }
 
-    [Header("Session Data")]
-    public int currentScore = 0;
-    public int currentCoins = 0;
-    public float currentSpeed = 10f;
+    [Header("References")]
+    public PlayerController      player;
+    public ObstacleSpawner       spawner;
+    public BackgroundScroller[]  backgroundLayers;
 
+    [Header("UI")]
+    public TextMeshProUGUI scoreText;
+    public GameObject      gameOverPanel;
+    public GameObject      startPanel;
+
+    private float score;
+    private float bestScore;
+    private bool  isPlaying;
+
+    // ================================================================
     void Awake()
     {
-        if (instance == null)
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance  = this;
+        bestScore = PlayerPrefs.GetFloat("BestScore", 0f);
+    }
+
+    void Start() => ShowStart();
+
+    void Update()
+    {
+        if (!isPlaying) return;
+        score += Time.deltaTime * ObstacleSpawner.CurrentSpeed * 0.5f;
+        scoreText?.SetText(Mathf.FloorToInt(score).ToString("N0"));
+    }
+
+    // ================================================================
+    //  UI Flow
+    // ================================================================
+    void ShowStart()
+    {
+        startPanel?.SetActive(true);
+        gameOverPanel?.SetActive(false);
+        isPlaying = false;
+    }
+
+    // เรียกจากปุ่ม Start ใน Canvas
+    public void StartGame()
+    {
+        score     = 0f;
+        isPlaying = true;
+
+        startPanel?.SetActive(false);
+        gameOverPanel?.SetActive(false);
+
+        player?.ResetPlayer();
+        spawner?.StartGame();
+
+        foreach (var bg in backgroundLayers)
         {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
+            bg?.ResetPosition();
+            bg?.Resume();
         }
-        else
+    }
+
+    // ================================================================
+    //  Called by PlayerController.Die()
+    // ================================================================
+    public void OnPlayerDied()
+    {
+        isPlaying = false;
+
+        spawner?.StopGame();
+        foreach (var bg in backgroundLayers) bg?.Stop();
+
+        // บันทึก Best Score
+        if (score > bestScore)
         {
-            Destroy(gameObject);
+            bestScore = score;
+            PlayerPrefs.SetFloat("BestScore", bestScore);
+            PlayerPrefs.Save();
+        }
+
+        // แสดง Game Over Panel
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(true);
+            var labels = gameOverPanel.GetComponentsInChildren<TextMeshProUGUI>();
+            foreach (var lbl in labels)
+            {
+                if (lbl.name.Contains("Score"))
+                    lbl.SetText($"Score: {Mathf.FloorToInt(score):N0}\nBest: {Mathf.FloorToInt(bestScore):N0}");
+            }
         }
     }
 
-    public void ResetSession()
+    // ปุ่ม Retry
+    public void RestartGame()
     {
-        currentScore = 0;
-        currentCoins = 0;
-        currentSpeed = 10f;
-    }
-
-    public void AddScore(int amount)
-    {
-        currentScore += amount;
-    }
-
-    public void AddCoin(int amount)
-    {
-        currentCoins += amount;
+        spawner?.ResetGame();
+        StartGame();
     }
 }
