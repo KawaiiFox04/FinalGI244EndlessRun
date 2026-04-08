@@ -7,37 +7,39 @@ public class ObstacleSpawner : MonoBehaviour
     public GameObject[] obstaclePrefabs;
 
     [Header("Spawn Position")]
-    public float spawnX       = 12f;   // ระยะขวาจอ
-    public float spawnZ       = 0f;    // ล็อค Z ให้ตรงกับ Player
-    public float[] spawnYPositions = { 0f, 1.5f }; // ความสูงที่ Spawn ได้
+    public float   spawnX          = 12f;
+    public float   spawnZ          = 0f;
+    public float[] spawnYPositions = { 0f };
 
-    [Header("Speed")]
+    [Header("Base Speed")]
     public float initialSpeed      = 6f;
     public float maxSpeed          = 18f;
-    public float speedIncreaseRate = 0.08f; // หน่วย/วินาที
+    public float speedIncreaseRate = 0.08f;
 
     [Header("Spawn Interval")]
-    public float initialInterval = 2f;
-    public float minInterval     = 0.5f;
+    public float initialInterval = 5f;
+    public float minInterval     = 1.5f;
 
-    // Static ให้ Script อื่นอ่านได้
-    public static float CurrentSpeed { get; private set; }
+    public static float CurrentSpeed    { get; private set; }
+    public static float SpeedMultiplier { get; set; } = 1f;
 
+    private float baseSpeed;
     private float spawnTimer;
     private float currentInterval;
     private bool  isRunning;
 
-    // Object Pool
     private Dictionary<int, Queue<GameObject>> pool = new();
-    private const int PoolSizePerPrefab = 6;
+    private const int PoolSize = 6;
 
-    // ================================================================
-    //  Init
-    // ================================================================
     void Start()
     {
-        CurrentSpeed = initialSpeed;
+        SpeedMultiplier = 1f;
+        baseSpeed       = initialSpeed;
+        CurrentSpeed    = initialSpeed;
         InitPool();
+
+        if (GameplayManager.Instance == null)
+            StartGame();
     }
 
     void InitPool()
@@ -45,7 +47,7 @@ public class ObstacleSpawner : MonoBehaviour
         for (int i = 0; i < obstaclePrefabs.Length; i++)
         {
             pool[i] = new Queue<GameObject>();
-            for (int j = 0; j < PoolSizePerPrefab; j++)
+            for (int j = 0; j < PoolSize; j++)
             {
                 var go = Instantiate(obstaclePrefabs[i]);
                 go.SetActive(false);
@@ -54,21 +56,19 @@ public class ObstacleSpawner : MonoBehaviour
         }
     }
 
-    // ================================================================
-    //  Game State
-    // ================================================================
     public void StartGame()
     {
-        isRunning        = true;
-        CurrentSpeed     = initialSpeed;
-        currentInterval  = initialInterval;
-        spawnTimer       = currentInterval;
+        isRunning       = true;
+        SpeedMultiplier = 1f;
+        baseSpeed       = initialSpeed;
+        CurrentSpeed    = initialSpeed;
+        currentInterval = initialInterval;
+        spawnTimer      = initialInterval;
     }
 
     public void StopGame()
     {
         isRunning = false;
-        // หยุด Obstacle ที่กำลังวิ่งอยู่ทั้งหมด
         foreach (var obs in FindObjectsByType<Obstacle3D>(FindObjectsSortMode.None))
             obs.Stop();
     }
@@ -80,31 +80,31 @@ public class ObstacleSpawner : MonoBehaviour
         StartGame();
     }
 
-    // ================================================================
-    //  Update Loop
-    // ================================================================
     void Update()
     {
         if (!isRunning) return;
 
-        // เพิ่มความเร็ว
-        CurrentSpeed = Mathf.Min(CurrentSpeed + speedIncreaseRate * Time.deltaTime, maxSpeed);
+        baseSpeed    = Mathf.Min(baseSpeed + speedIncreaseRate * Time.deltaTime, maxSpeed);
+        CurrentSpeed = baseSpeed * SpeedMultiplier;
 
-        // คำนวณ Interval จาก t (0→1)
-        float t = Mathf.InverseLerp(initialSpeed, maxSpeed, CurrentSpeed);
+        float t = Mathf.InverseLerp(initialSpeed, maxSpeed, baseSpeed);
         currentInterval = Mathf.Lerp(initialInterval, minInterval, t);
 
         spawnTimer -= Time.deltaTime;
         if (spawnTimer <= 0f)
         {
             SpawnObstacle();
-            spawnTimer = currentInterval + Random.Range(-0.15f, 0.15f);
+            spawnTimer = currentInterval;
         }
     }
 
     void SpawnObstacle()
     {
-        if (obstaclePrefabs.Length == 0) return;
+        if (obstaclePrefabs.Length == 0)
+        {
+            Debug.LogWarning("ObstacleSpawner: ไม่มี Prefab ใน Obstacle Prefabs!");
+            return;
+        }
 
         int   idx    = Random.Range(0, obstaclePrefabs.Length);
         float spawnY = spawnYPositions[Random.Range(0, spawnYPositions.Length)];
@@ -114,12 +114,17 @@ public class ObstacleSpawner : MonoBehaviour
         go.transform.rotation = Quaternion.identity;
 
         var obs = go.GetComponent<Obstacle3D>();
-        obs?.Init(idx, this);
+        if (obs != null)
+        {
+            obs.Init(idx, this);
+            Debug.Log($"Spawned at {go.transform.position}");
+        }
+        else
+        {
+            Debug.LogError($"'{go.name}' ไม่มี Obstacle3D Script!");
+        }
     }
 
-    // ================================================================
-    //  Pool Helpers
-    // ================================================================
     GameObject GetFromPool(int idx)
     {
         if (pool.ContainsKey(idx) && pool[idx].Count > 0)
@@ -134,9 +139,7 @@ public class ObstacleSpawner : MonoBehaviour
     public void ReturnToPool(GameObject go, int idx)
     {
         go.SetActive(false);
-        if (pool.ContainsKey(idx))
-            pool[idx].Enqueue(go);
-        else
-            Destroy(go);
+        if (pool.ContainsKey(idx)) pool[idx].Enqueue(go);
+        else Destroy(go);
     }
 }

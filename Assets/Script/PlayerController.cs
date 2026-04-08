@@ -1,184 +1,190 @@
-using UnityEngine;
+// PlayerController.cs
+// ติดไว้ที่ Player (Capsule) ใน Scene: Gameplay
+// - กระโดดได้ 2 ครั้ง (Double Jump)
+// - รับ Damage จาก Obstacle
+// - เก็บ Item (Heal / SpeedBoost)
+// - รองรับ Invincible state
+// - รองรับ Size change (ตัวเล็ก)
 
-// ใช้ Rigidbody (3D) กับ CapsuleCollider (3D)
-// ล็อค Movement ให้อยู่แค่แกน X และ Y เท่านั้น (ไม่ขยับแกน Z)
+using UnityEngine;
+using UnityEngine.InputSystem;
+using TMPro;
+
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
 public class PlayerController : MonoBehaviour
 {
-    [Header("Jump Settings")]
-    public float jumpForce = 7f;
-    public int maxJumpCount = 2;           // 2 = Double Jump
+    [Header("Jump")]
+    public float jumpForce    = 8f;
+    public int   maxJumpCount = 2;
+
+    [Header("HP")]
+    public int maxHp = 3;
 
     [Header("Ground Check")]
-    public float groundCheckDistance = 0.1f;
+    public float     groundCheckDist = 0.15f;
     public LayerMask groundLayer;
 
-    [Header("Slide Settings")]
-    public float slideTime = 0.8f;
-    [Range(0.1f, 0.9f)]
-    public float slideCrouchRatio = 0.5f;  // ย่อ Collider เหลือกี่ % ตอน Slide
+    [Header("UI")]
+    public TextMeshProUGUI hpText;      // แสดง HP ใน Canvas
 
-    // ---- Private ----
-    private Rigidbody rb;
+    // ---- Runtime State ----
+    [HideInInspector] public bool IsInvincible;   // ตอน SpeedBoost
+    [HideInInspector] public int  CurrentHp;
+
+    private Rigidbody       rb;
     private CapsuleCollider col;
-    private Animator animator;
+    private Animator        anim;
 
-    private bool isGrounded;
-    private int jumpCount;
-    private bool isSliding;
-    private float slideTimer;
-    private bool isDead;
+    private bool  isGrounded;
+    private int   jumpCount;
+    private bool  isDead;
 
     private float originalColHeight;
     private Vector3 originalColCenter;
+    private Vector3 originalScale;
 
+    // ================================================================
     void Start()
     {
-        rb  = GetComponent<Rigidbody>();
-        col = GetComponent<CapsuleCollider>();
-        animator = GetComponent<Animator>(); // ไม่บังคับ
+        rb   = GetComponent<Rigidbody>();
+        col  = GetComponent<CapsuleCollider>();
+        anim = GetComponent<Animator>();
 
-        // ล็อคไม่ให้หมุน และไม่ให้ขยับแกน Z
+        // ล็อคแกน Z และป้องกันหมุน
         rb.constraints = RigidbodyConstraints.FreezeRotation
                        | RigidbodyConstraints.FreezePositionZ;
 
         originalColHeight = col.height;
         originalColCenter = col.center;
+        originalScale     = transform.localScale;
+
+        CurrentHp = maxHp;
+        RefreshHpUI();
     }
 
     void Update()
     {
         if (isDead) return;
-
         CheckGround();
         HandleJump();
-        HandleSlide();
-        UpdateAnimator();
     }
 
     // ================================================================
-    //  Ground Check — ยิง Raycast ลงจากใต้ Capsule
+    //  Ground Check
     // ================================================================
     void CheckGround()
     {
         Vector3 origin = transform.position + col.center;
-        float   rayLen = (col.height * 0.5f) + groundCheckDistance;
-
-        isGrounded = Physics.Raycast(origin, Vector3.down, rayLen, groundLayer);
+        float   len    = col.height * 0.5f + groundCheckDist;
+        isGrounded = Physics.Raycast(origin, Vector3.down, len, groundLayer);
         if (isGrounded) jumpCount = 0;
-
-        // Debug line ให้เห็นใน Scene View
-        Debug.DrawRay(origin, Vector3.down * rayLen,
-                      isGrounded ? Color.green : Color.red);
+        Debug.DrawRay(origin, Vector3.down * len, isGrounded ? Color.green : Color.red);
     }
 
     // ================================================================
-    //  Jump
+    //  Jump (New Input System)
     // ================================================================
     void HandleJump()
     {
-        bool jumped = Input.GetKeyDown(KeyCode.Space)
-                   || Input.GetKeyDown(KeyCode.UpArrow)
-                   || Input.GetKeyDown(KeyCode.W);
+        bool jumped = false;
 
-        // Mobile — แตะครึ่งบนจอ
-        if (Input.touchCount > 0)
-        {
-            Touch t = Input.GetTouch(0);
-            if (t.phase == TouchPhase.Began && t.position.y > Screen.height * 0.5f)
-                jumped = true;
-        }
+        var kb = Keyboard.current;
+        if (kb != null && (kb.spaceKey.wasPressedThisFrame || kb.upArrowKey.wasPressedThisFrame))
+            jumped = true;
 
-        if (jumped && jumpCount < maxJumpCount && !isSliding)
+        var touch = Touchscreen.current;
+        if (touch != null)
+            foreach (var f in touch.touches)
+                if (f.press.wasPressedThisFrame) jumped = true;
+
+        if (jumped && jumpCount < maxJumpCount)
         {
-            // Reset velocity Y ก่อนเพื่อให้ Double Jump รู้สึก Responsive
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, 0f);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             jumpCount++;
-            animator?.SetTrigger("Jump");
+            anim?.SetTrigger("Jump");
         }
     }
 
     // ================================================================
-    //  Slide
+    //  Damage
     // ================================================================
-    void HandleSlide()
+    public void TakeDamage(int amount = 1)
     {
-        bool slid = Input.GetKeyDown(KeyCode.DownArrow)
-                 || Input.GetKeyDown(KeyCode.S);
+        if (IsInvincible || isDead) return;
+        CurrentHp -= amount;
+        RefreshHpUI();
 
-        // Mobile — แตะครึ่งล่างจอ
-        if (Input.touchCount > 0)
-        {
-            Touch t = Input.GetTouch(0);
-            if (t.phase == TouchPhase.Began && t.position.y < Screen.height * 0.5f)
-                slid = true;
-        }
-
-        if (slid && isGrounded && !isSliding)
-            StartSlide();
-
-        if (isSliding)
-        {
-            slideTimer -= Time.deltaTime;
-            if (slideTimer <= 0f) StopSlide();
-        }
+        if (CurrentHp <= 0)
+            Die();
+        else
+            anim?.SetTrigger("Hit");
     }
 
-    void StartSlide()
+    void Die()
     {
-        isSliding  = true;
-        slideTimer = slideTime;
-
-        // ย่อ Collider ลงและดัน Center ลงมาด้วย ไม่งั้นจะลอย
-        float newHeight   = originalColHeight * slideCrouchRatio;
-        float centerDelta = (originalColHeight - newHeight) * 0.5f;
-
-        col.height = newHeight;
-        col.center = originalColCenter - new Vector3(0f, centerDelta, 0f);
-
-        animator?.SetBool("IsSliding", true);
-    }
-
-    void StopSlide()
-    {
-        isSliding  = false;
-        col.height = originalColHeight;
-        col.center = originalColCenter;
-        animator?.SetBool("IsSliding", false);
-    }
-
-    // ================================================================
-    //  Animator
-    // ================================================================
-    void UpdateAnimator()
-    {
-        if (animator == null) return;
-        animator.SetBool ("IsGrounded",    isGrounded);
-        animator.SetFloat("VerticalSpeed", rb.linearVelocity.y);
-    }
-
-    // ================================================================
-    //  Die / Reset
-    // ================================================================
-    public void Die()
-    {
-        if (isDead) return;
         isDead = true;
         rb.linearVelocity = Vector3.zero;
-        animator?.SetTrigger("Die");
-        GameManager.Instance?.OnPlayerDied();
+        anim?.SetTrigger("Die");
+        GameplayManager.Instance?.OnPlayerDied();
     }
 
+    // ================================================================
+    //  Heal
+    // ================================================================
+    public void Heal(int amount = 1)
+    {
+        CurrentHp = Mathf.Min(CurrentHp + amount, maxHp);
+        RefreshHpUI();
+    }
+
+    // ================================================================
+    //  Size Change (เล็กลง / กลับปกติ)
+    // ================================================================
+    public void SetSmallSize(bool small)
+    {
+        if (small)
+        {
+            transform.localScale = originalScale * 0.5f;
+            col.height = originalColHeight * 0.5f;
+            float delta = (originalColHeight - col.height) * 0.5f;
+            col.center = originalColCenter - new Vector3(0, delta, 0);
+        }
+        else
+        {
+            transform.localScale = originalScale;
+            col.height = originalColHeight;
+            col.center = originalColCenter;
+        }
+    }
+
+    // ================================================================
+    //  Reset
+    // ================================================================
     public void ResetPlayer()
     {
-        isDead     = false;
-        jumpCount  = 0;
-        isSliding  = false;
-        StopSlide();
+        isDead       = false;
+        jumpCount    = 0;
+        IsInvincible = false;
+        CurrentHp    = maxHp;
+        SetSmallSize(false);
         rb.linearVelocity = Vector3.zero;
-        animator?.Rebind();
+        anim?.Rebind();
+        RefreshHpUI();
+    }
+
+    // ================================================================
+    //  UI
+    // ================================================================
+    void RefreshHpUI()
+    {
+        if (hpText == null) return;
+        // แสดงเป็นหัวใจ ❤ ตามจำนวน HP
+        string hearts = "";
+        for (int i = 0; i < maxHp; i++)
+            hearts += i < CurrentHp ? "❤️" : "🖤";
+        hpText.SetText(hearts);
     }
 
     // ================================================================
@@ -187,9 +193,8 @@ public class PlayerController : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         if (col == null) return;
-        Vector3 origin = transform.position + col.center;
-        float   rayLen = (col.height * 0.5f) + groundCheckDistance;
+        var o = transform.position + col.center;
         Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(origin, origin + Vector3.down * rayLen);
+        Gizmos.DrawLine(o, o + Vector3.down * (col.height * 0.5f + groundCheckDist));
     }
 }
