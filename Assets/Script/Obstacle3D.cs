@@ -4,33 +4,33 @@ using UnityEngine;
 public class Obstacle3D : MonoBehaviour
 {
     [Header("Despawn")]
-    public float despawnX = -14f;
+    public float despawnX = -15f;
 
     [Header("Damage")]
     public int damageAmount = 1;
 
     public int PrefabIndex { get; private set; }
 
-    private ObstacleSpawner spawner;
-    private bool isStopped;
-    private bool isInit;
+    private ObstacleSpawner _spawner;
+    private bool _isStopped;
+    private bool _isInit;
 
     public void Init(int index, ObstacleSpawner spawnerRef)
     {
         PrefabIndex = index;
-        spawner     = spawnerRef;
-        isStopped   = false;
-        isInit      = true;
+        _spawner    = spawnerRef;
+        _isStopped  = false;
+        _isInit     = true;
     }
 
-    public void Stop() => isStopped = true;
+    public void Stop() => _isStopped = true;
 
-    void Update()
+    private void Update()
     {
-        if (!isInit || isStopped) return;
+        if (!_isInit || _isStopped) return;
 
         transform.Translate(
-            Vector3.left * ObstacleSpawner.CurrentSpeed * Time.deltaTime,
+            Vector3.left * (ObstacleSpawner.CurrentSpeed * Time.deltaTime),
             Space.World
         );
 
@@ -38,7 +38,7 @@ public class Obstacle3D : MonoBehaviour
             ReturnSelf();
     }
 
-    void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
 
@@ -50,11 +50,11 @@ public class Obstacle3D : MonoBehaviour
         }
     }
 
-    void ReturnSelf()
+    private void ReturnSelf()
     {
-        isInit = false;
-        if (spawner != null)
-            spawner.ReturnToPool(gameObject, PrefabIndex);
+        _isInit = false;
+        if (_spawner != null)
+            _spawner.ReturnToPool(gameObject, PrefabIndex);
         else
             gameObject.SetActive(false);
     }

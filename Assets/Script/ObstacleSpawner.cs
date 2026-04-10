@@ -8,7 +8,7 @@ public class ObstacleSpawner : MonoBehaviour
 
     [Header("Spawn Position")]
     public float   spawnX          = 12f;
-    public float   spawnZ          = 0f;
+    public float spawnZ;
     public float[] spawnYPositions = { 0f };
 
     [Header("Base Speed")]
@@ -23,52 +23,52 @@ public class ObstacleSpawner : MonoBehaviour
     public static float CurrentSpeed    { get; private set; }
     public static float SpeedMultiplier { get; set; } = 1f;
 
-    private float baseSpeed;
-    private float spawnTimer;
-    private float currentInterval;
-    private bool  isRunning;
+    private float _baseSpeed;
+    private float _spawnTimer;
+    private float _currentInterval;
+    private bool  _isRunning;
 
-    private Dictionary<int, Queue<GameObject>> pool = new();
+    private readonly Dictionary<int, Queue<GameObject>> _pool = new Dictionary<int, Queue<GameObject>>();
     private const int PoolSize = 6;
 
-    void Start()
+    private void Start()
     {
-        SpeedMultiplier = 1f;
-        baseSpeed       = initialSpeed;
-        CurrentSpeed    = initialSpeed;
+        SpeedMultiplier  = 1f;
+        _baseSpeed       = initialSpeed;
+        CurrentSpeed     = initialSpeed;
         InitPool();
 
         if (GameplayManager.Instance == null)
             StartGame();
     }
 
-    void InitPool()
+    private void InitPool()
     {
         for (int i = 0; i < obstaclePrefabs.Length; i++)
         {
-            pool[i] = new Queue<GameObject>();
+            _pool[i] = new Queue<GameObject>();
             for (int j = 0; j < PoolSize; j++)
             {
                 var go = Instantiate(obstaclePrefabs[i]);
                 go.SetActive(false);
-                pool[i].Enqueue(go);
+                _pool[i].Enqueue(go);
             }
         }
     }
 
     public void StartGame()
     {
-        isRunning       = true;
-        SpeedMultiplier = 1f;
-        baseSpeed       = initialSpeed;
-        CurrentSpeed    = initialSpeed;
-        currentInterval = initialInterval;
-        spawnTimer      = initialInterval;
+        _isRunning       = true;
+        SpeedMultiplier  = 1f;
+        _baseSpeed       = initialSpeed;
+        CurrentSpeed     = initialSpeed;
+        _currentInterval = initialInterval;
+        _spawnTimer      = initialInterval;
     }
 
     public void StopGame()
     {
-        isRunning = false;
+        _isRunning = false;
         foreach (var obs in FindObjectsByType<Obstacle3D>(FindObjectsSortMode.None))
             obs.Stop();
     }
@@ -80,29 +80,29 @@ public class ObstacleSpawner : MonoBehaviour
         StartGame();
     }
 
-    void Update()
+    private void Update()
     {
-        if (!isRunning) return;
+        if (!_isRunning) return;
 
-        baseSpeed    = Mathf.Min(baseSpeed + speedIncreaseRate * Time.deltaTime, maxSpeed);
-        CurrentSpeed = baseSpeed * SpeedMultiplier;
+        _baseSpeed   = Mathf.Min(_baseSpeed + speedIncreaseRate * Time.deltaTime, maxSpeed);
+        CurrentSpeed = _baseSpeed * SpeedMultiplier;
 
-        float t = Mathf.InverseLerp(initialSpeed, maxSpeed, baseSpeed);
-        currentInterval = Mathf.Lerp(initialInterval, minInterval, t);
+        float t = Mathf.InverseLerp(initialSpeed, maxSpeed, _baseSpeed);
+        _currentInterval = Mathf.Lerp(initialInterval, minInterval, t);
 
-        spawnTimer -= Time.deltaTime;
-        if (spawnTimer <= 0f)
+        _spawnTimer -= Time.deltaTime;
+        if (_spawnTimer <= 0f)
         {
             SpawnObstacle();
-            spawnTimer = currentInterval;
+            _spawnTimer = _currentInterval;
         }
     }
 
-    void SpawnObstacle()
+    private void SpawnObstacle()
     {
         if (obstaclePrefabs.Length == 0)
         {
-            Debug.LogWarning("ObstacleSpawner: ไม่มี Prefab ใน Obstacle Prefabs!");
+            Debug.LogWarning("ObstacleSpawner: ไม่มี Prefab!");
             return;
         }
 
@@ -117,7 +117,6 @@ public class ObstacleSpawner : MonoBehaviour
         if (obs != null)
         {
             obs.Init(idx, this);
-            Debug.Log($"Spawned at {go.transform.position}");
         }
         else
         {
@@ -125,11 +124,11 @@ public class ObstacleSpawner : MonoBehaviour
         }
     }
 
-    GameObject GetFromPool(int idx)
+    private GameObject GetFromPool(int idx)
     {
-        if (pool.ContainsKey(idx) && pool[idx].Count > 0)
+        if (_pool.ContainsKey(idx) && _pool[idx].Count > 0)
         {
-            var go = pool[idx].Dequeue();
+            var go = _pool[idx].Dequeue();
             go.SetActive(true);
             return go;
         }
@@ -139,7 +138,9 @@ public class ObstacleSpawner : MonoBehaviour
     public void ReturnToPool(GameObject go, int idx)
     {
         go.SetActive(false);
-        if (pool.ContainsKey(idx)) pool[idx].Enqueue(go);
-        else Destroy(go);
+        if (_pool.ContainsKey(idx))
+            _pool[idx].Enqueue(go);
+        else
+            Destroy(go);
     }
 }

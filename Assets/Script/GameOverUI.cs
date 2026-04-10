@@ -1,6 +1,3 @@
-// GameOverUI.cs
-// ติดไว้ที่ GameObject ใน Scene: GameOver
-
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
@@ -9,54 +6,48 @@ public class GameOverUI : MonoBehaviour
 {
     [Header("Scene Names")]
     public string gameplaySceneName = "Gameplay";
-    public string startSceneName    = "StartScene";
 
     [Header("UI References")]
-    public TextMeshProUGUI currentScoreText;   // คะแนนรอบนี้
-    public TextMeshProUGUI bestScoreText;      // คะแนนสูงสุด
-    public TextMeshProUGUI compareText;        // "มากกว่า / น้อยกว่า X คะแนน"
-    public TextMeshProUGUI newRecordText;      // "NEW RECORD!" (ซ่อนถ้าไม่ใช่ Record)
-    public TextMeshProUGUI coinEarnedText;     // เหรียญที่ได้รอบนี้
+    public TextMeshProUGUI currentScoreText;
+    public TextMeshProUGUI bestScoreText;
+    public TextMeshProUGUI compareText;
+    public TextMeshProUGUI newRecordText;
+    public TextMeshProUGUI coinEarnedText;
 
     [Header("History Panel")]
     public GameObject historyPanel;
     public Transform  historyContent;
     public GameObject historyItemPrefab;
 
-    void Start()
+    private void Start()
     {
-        int current  = GameData.CurrentScore;
-        int best     = GameData.BestScore;
+        int current     = GameData.CurrentScore;
+        int best        = GameData.BestScore;
         int coinsEarned = GameData.CurrentCoins;
 
-        // คะแนน
-        currentScoreText?.SetText($"{current:N0}");
-        bestScoreText?.SetText($"Best: {best:N0}");
-        coinEarnedText?.SetText($"🪙 +{coinsEarned}");
+        if (currentScoreText != null) currentScoreText.SetText(current.ToString("N0"));
+        if (bestScoreText    != null) bestScoreText.SetText($"Best: {best:N0}");
+        if (coinEarnedText   != null) coinEarnedText.SetText($"Coin: +{coinsEarned}");
 
-        // เปรียบเทียบ
         int diff = current - best;
         if (diff > 0)
         {
-            compareText?.SetText($"มากกว่า Best เดิม +{diff:N0} คะแนน!");
-            newRecordText?.gameObject.SetActive(true);
+            if (compareText   != null) compareText.SetText($"มากกว่า Best เดิม +{diff:N0} คะแนน!");
+            if (newRecordText != null) newRecordText.gameObject.SetActive(true);
         }
         else if (diff < 0)
         {
-            compareText?.SetText($"น้อยกว่า Best อยู่ {Mathf.Abs(diff):N0} คะแนน");
-            newRecordText?.gameObject.SetActive(false);
+            if (compareText   != null) compareText.SetText($"น้อยกว่า Best อยู่ {Mathf.Abs(diff):N0} คะแนน");
+            if (newRecordText != null) newRecordText.gameObject.SetActive(false);
         }
         else
         {
-            compareText?.SetText("เท่ากับ Best Score!");
-            newRecordText?.gameObject.SetActive(false);
+            if (compareText   != null) compareText.SetText("เท่ากับ Best Score!");
+            if (newRecordText != null) newRecordText.gameObject.SetActive(false);
         }
 
-        // ซ่อน History ก่อน
-        historyPanel?.SetActive(false);
+        if (historyPanel != null) historyPanel.SetActive(false);
     }
-
-    // ---- Buttons ----
 
     public void OnRestartPressed()
     {
@@ -73,13 +64,13 @@ public class GameOverUI : MonoBehaviour
 
     public void OnHistoryPressed()
     {
+        if (historyPanel == null) return;
         bool isOpen = !historyPanel.activeSelf;
-        historyPanel?.SetActive(isOpen);
+        historyPanel.SetActive(isOpen);
         if (isOpen) LoadHistory();
     }
 
-    // ---- Load History ----
-    void LoadHistory()
+    private void LoadHistory()
     {
         if (historyContent == null || historyItemPrefab == null) return;
 
@@ -91,7 +82,8 @@ public class GameOverUI : MonoBehaviour
         if (records.Count == 0)
         {
             var empty = Instantiate(historyItemPrefab, historyContent);
-            empty.GetComponentInChildren<TextMeshProUGUI>()?.SetText("ยังไม่มีประวัติ");
+            var tmp   = empty.GetComponentInChildren<TextMeshProUGUI>();
+            if (tmp != null) tmp.SetText("ยังไม่มีประวัติ");
             return;
         }
 
@@ -107,7 +99,7 @@ public class GameOverUI : MonoBehaviour
                 {
                     case "Rank":  t.SetText($"#{i + 1}");              break;
                     case "Score": t.SetText($"Score: {rec.score:N0}"); break;
-                    case "Coin":  t.SetText($"🪙 {rec.coins:N0}");     break;
+                    case "Coin":  t.SetText($"Coin: {rec.coins:N0}");  break;
                     case "Date":  t.SetText(rec.date);                 break;
                 }
             }

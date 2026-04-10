@@ -1,29 +1,32 @@
-// CollectibleItem.cs
-// ติดไว้ที่ Prefab ของ Item ทุกชนิด (Coin / Heal / SpeedBoost)
-// Collider ต้องติ๊ก Is Trigger = true
-
 using UnityEngine;
 
+[RequireComponent(typeof(Collider))]
 public class CollectibleItem : MonoBehaviour
 {
     public enum ItemType { Coin, Heal, SpeedBoost }
 
     [Header("Item Settings")]
-    public ItemType itemType   = ItemType.Coin;
-    public int      coinValue  = 1;    // ใช้เมื่อ ItemType = Coin
-    public int      healValue  = 1;    // ใช้เมื่อ ItemType = Heal
+    public ItemType itemType  = ItemType.Coin;
+    public int      coinValue = 1;
+    public int      healValue = 1;
 
     [Header("Movement")]
     public float despawnX = -14f;
 
-    void Update()
+    private Transform _transform;
+
+    private void Awake() => _transform = transform;
+
+    private void Update()
     {
-        // Item เคลื่อนที่ไปพร้อม Obstacle (ความเร็วเดียวกัน)
-        transform.Translate(Vector3.left * ObstacleSpawner.CurrentSpeed * Time.deltaTime, Space.World);
-        if (transform.position.x < despawnX) Destroy(gameObject);
+        float moveDist      = ObstacleSpawner.CurrentSpeed * Time.deltaTime;
+        _transform.Translate(Vector3.left * moveDist, Space.World);
+
+        if (_transform.position.x < despawnX)
+            Destroy(gameObject);
     }
 
-    void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
 
@@ -33,15 +36,15 @@ public class CollectibleItem : MonoBehaviour
         switch (itemType)
         {
             case ItemType.Coin:
-                GameplayManager.Instance?.AddCoin(coinValue);
+                if (GameplayManager.Instance != null)
+                    GameplayManager.Instance.AddCoin(coinValue);
                 break;
-
             case ItemType.Heal:
                 pc.Heal(healValue);
                 break;
-
             case ItemType.SpeedBoost:
-                GameplayManager.Instance?.ActivateSpeedBoost();
+                if (GameplayManager.Instance != null)
+                    GameplayManager.Instance.ActivateSpeedBoost();
                 break;
         }
 

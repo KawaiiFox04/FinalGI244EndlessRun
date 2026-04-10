@@ -1,43 +1,46 @@
-// BackgroundScroller.cs
-// ติดไว้ที่ Background แต่ละชั้น
-
 using UnityEngine;
 
 public class BackgroundScroller : MonoBehaviour
 {
-    [Header("Parallax")]
+    [Header("Speed")]
     [Range(0f, 1f)]
     public float parallaxFactor = 1f;
 
     [Header("Loop")]
     public float tileWidth = 20f;
 
-    private float startX;
-    private bool  isStopped;
-    private float speedMultiplier = 1f;
+    private float     _startX;
+    private bool      _isStopped;
+    private float     _speedMultiplier = 1f;
+    private Transform _transform;
 
-    void Start() => startX = transform.position.x;
+    private void Awake() => _transform = transform;
 
-    void Update()
+    private void Start() => _startX = _transform.position.x;
+
+    private void Update()
     {
-        if (isStopped) return;
-        float speed = ObstacleSpawner.CurrentSpeed * parallaxFactor * speedMultiplier;
-        transform.Translate(Vector3.left * speed * Time.deltaTime, Space.World);
+        if (_isStopped) return;
 
-        if (transform.position.x <= startX - tileWidth)
+        float moveDist = ObstacleSpawner.CurrentSpeed * parallaxFactor * _speedMultiplier * Time.deltaTime;
+        _transform.Translate(Vector3.left * moveDist, Space.World);
+
+        Vector3 pos = _transform.position;
+        if (pos.x <= _startX - tileWidth)
         {
-            var pos = transform.position;
-            pos.x += tileWidth;
-            transform.position = pos;
+            pos.x              += tileWidth;
+            _transform.position = pos;
         }
     }
 
-    public void Stop()                         => isStopped = true;
-    public void Resume()                       => isStopped = false;
-    public void SetSpeedMultiplier(float m)    => speedMultiplier = m;
+    public void Stop()                      => _isStopped = true;
+    public void Resume()                    => _isStopped = false;
+    public void SetSpeedMultiplier(float m) => _speedMultiplier = m;
 
     public void ResetPosition()
     {
-        transform.position = new Vector3(startX, transform.position.y, transform.position.z);
+        Vector3 pos         = _transform.position;
+        pos.x               = _startX;
+        _transform.position = pos;
     }
 }
