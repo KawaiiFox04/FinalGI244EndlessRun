@@ -32,17 +32,17 @@ public class GameOverUI : MonoBehaviour
         int diff = current - best;
         if (diff > 0)
         {
-            if (compareText   != null) compareText.SetText($"มากกว่า Best เดิม +{diff:N0} คะแนน!");
+            if (compareText   != null) compareText.SetText($"Better than Best +{diff:N0} pts!");
             if (newRecordText != null) newRecordText.gameObject.SetActive(true);
         }
         else if (diff < 0)
         {
-            if (compareText   != null) compareText.SetText($"น้อยกว่า Best อยู่ {Mathf.Abs(diff):N0} คะแนน");
+            if (compareText   != null) compareText.SetText($"Below Best by {Mathf.Abs(diff):N0} pts");
             if (newRecordText != null) newRecordText.gameObject.SetActive(false);
         }
         else
         {
-            if (compareText   != null) compareText.SetText("เท่ากับ Best Score!");
+            if (compareText   != null) compareText.SetText("Matched Best Score!");
             if (newRecordText != null) newRecordText.gameObject.SetActive(false);
         }
 
@@ -83,7 +83,7 @@ public class GameOverUI : MonoBehaviour
         {
             var empty = Instantiate(historyItemPrefab, historyContent);
             var tmp   = empty.GetComponentInChildren<TextMeshProUGUI>();
-            if (tmp != null) tmp.SetText("ยังไม่มีประวัติ");
+            if (tmp != null) tmp.SetText("No history yet");
             return;
         }
 
