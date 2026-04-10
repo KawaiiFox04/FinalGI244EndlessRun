@@ -1658,6 +1658,8 @@ MonoBehaviour:
   itemSpawnYPositions:
   - 0
   - 1.5
+  coinItemPrefab: {fileID: 5607311426765907741, guid: f4f29cf12be94ea44a16dbc54781a60d, type: 3}
+  coinSpawnInterval: 3
   speedBoostItemPrefab: {fileID: 8801736566106106867, guid: 222afb996b9fa464d9b3d9bb95425eb7, type: 3}
   speedBoostSpawnInterval: 15
   speedBoostDuration: 5

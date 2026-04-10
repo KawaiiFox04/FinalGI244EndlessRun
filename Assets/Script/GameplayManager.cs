@@ -30,6 +30,10 @@ public class GameplayManager : MonoBehaviour
     public float      healSpawnX         = 12f;
     public float[]    itemSpawnYPositions = { 0f, 1.5f };
 
+    [Header("Coin Item")]
+    public GameObject coinItemPrefab;
+    public float      coinSpawnInterval = 3f;   // Spawn ทุก 3 วินาที
+
     [Header("SpeedBoost Item")]
     public GameObject speedBoostItemPrefab;
     public float      speedBoostSpawnInterval = 15f;
@@ -89,6 +93,7 @@ public class GameplayManager : MonoBehaviour
             bg.Resume();
         }
 
+        StartCoroutine(SpawnCoinRoutine());
         StartCoroutine(SpawnHealRoutine());
         StartCoroutine(SpawnSpeedBoostRoutine());
         StartCoroutine(FlipCameraRoutine());
@@ -127,6 +132,16 @@ public class GameplayManager : MonoBehaviour
             if (bg != null) bg.SetSpeedMultiplier(1f);
 
         ShowStatus("");
+    }
+
+    private IEnumerator SpawnCoinRoutine()
+    {
+        while (_isPlaying)
+        {
+            yield return new WaitForSeconds(coinSpawnInterval);
+            if (!_isPlaying) break;
+            SpawnItem(coinItemPrefab);
+        }
     }
 
     private IEnumerator SpawnHealRoutine()

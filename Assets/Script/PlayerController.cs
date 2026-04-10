@@ -80,8 +80,10 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGround()
     {
-        Vector3 origin    = transform.position + _col.center;
-        float   len       = _col.height * 0.5f + groundCheckDist;
+        // ใช้ _originalColHeight เสมอ ไม่ว่าจะ Small หรือไม่
+        // ป้องกัน Raycast สั้นลงตอน SetSmallSize แล้ว jumpCount ถูก Reset ผิด
+        Vector3 origin      = transform.position + _originalColCenter;
+        float   len         = _originalColHeight * 0.5f + groundCheckDist;
         bool    wasOnGround = _isGrounded;
         _isGrounded = Physics.Raycast(origin, Vector3.down, len, groundLayer);
 
