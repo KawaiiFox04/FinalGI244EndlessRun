@@ -189,10 +189,7 @@ public class PlayerController : MonoBehaviour
     private void RefreshHpUI()
     {
         if (hpText == null) return;
-        string hp = "";
-        for (int i = 0; i < maxHp; i++)
-            hp += i < currentHp ? "[ O ] " : "[ X ] ";
-        hpText.SetText(hp);
+        hpText.SetText($"HP : {currentHp} / {maxHp}");
     }
 
     private void OnDrawGizmosSelected()

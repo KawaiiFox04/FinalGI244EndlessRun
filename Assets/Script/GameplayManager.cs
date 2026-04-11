@@ -26,17 +26,17 @@ public class GameplayManager : MonoBehaviour
 
     [Header("Heal Item")]
     public GameObject healItemPrefab;
-    public float      healSpawnInterval  = 5f;
+    public float      healSpawnInterval  = 30f;  // Spawn ทุก 30 วินาที
     public float      healSpawnX         = 12f;
     public float[]    itemSpawnYPositions = { 0f, 1.5f };
 
     [Header("Coin Item")]
     public GameObject coinItemPrefab;
-    public float      coinSpawnInterval = 3f;   // Spawn ทุก 3 วินาที
+    public float      coinSpawnInterval = 3f;
 
     [Header("SpeedBoost Item")]
     public GameObject speedBoostItemPrefab;
-    public float      speedBoostSpawnInterval = 15f;
+    public float      speedBoostSpawnInterval = 15f;  // Spawn ทุก 15 วินาที
     public float      speedBoostDuration      = 5f;
 
     [Header("Camera Flip")]
