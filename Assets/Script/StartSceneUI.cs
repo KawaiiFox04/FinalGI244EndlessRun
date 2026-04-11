@@ -11,6 +11,7 @@ public class StartSceneUI : MonoBehaviour
     [Header("Main Buttons")]
     public Button startButton;
     public Button optionButton;
+    public Button historyButton;
 
     [Header("Coin Display")]
     public TextMeshProUGUI totalCoinText;
@@ -32,37 +33,60 @@ public class StartSceneUI : MonoBehaviour
         if (musicToggle != null) musicToggle.isOn = GameData.IsMusicOn;
         if (sfxToggle   != null) sfxToggle.isOn   = GameData.IsSfxOn;
 
-        if (optionPanel != null) optionPanel.SetActive(false);
+        if (optionPanel  != null) optionPanel.SetActive(false);
+        if (historyPanel != null) historyPanel.SetActive(false);
 
-        LoadHistory();
-
-        if (startButton  != null) startButton.onClick.AddListener(OnStartPressed);
-        if (optionButton != null) optionButton.onClick.AddListener(OnOptionPressed);
+        if (startButton   != null) startButton.onClick.AddListener(OnStartPressed);
+        if (optionButton  != null) optionButton.onClick.AddListener(OnOptionPressed);
+        if (historyButton != null) historyButton.onClick.AddListener(OnHistoryPressed);
 
         if (musicToggle != null) musicToggle.onValueChanged.AddListener(v => GameData.IsMusicOn = v);
         if (sfxToggle   != null) sfxToggle.onValueChanged.AddListener(v => GameData.IsSfxOn     = v);
+        string raw = PlayerPrefs.GetString("RunHistory", "EMPTY");
+        Debug.Log($"Raw History = {raw}");
     }
 
+    // ================================================================
+    //  Coin
+    // ================================================================
     private void RefreshCoinDisplay()
     {
         if (totalCoinText != null)
             totalCoinText.SetText($"Coin: {GameData.TotalCoins:N0}");
     }
 
+    // ================================================================
+    //  History
+    // ================================================================
+    public void OnHistoryPressed()
+    {
+        if (historyPanel == null) return;
+        historyPanel.SetActive(true);
+        LoadHistory();
+    }
+
+    public void OnCloseHistoryPressed()
+    {
+        if (historyPanel != null)
+            historyPanel.SetActive(false);
+    }
+
     private void LoadHistory()
     {
         if (historyContent == null || historyItemPrefab == null) return;
 
+        // ลบของเก่าออกก่อน
         foreach (Transform child in historyContent)
             Destroy(child.gameObject);
 
         var records = GameData.GetHistory();
+        Debug.Log($"History Count = {records.Count}");
 
         if (records.Count == 0)
         {
             var empty = Instantiate(historyItemPrefab, historyContent);
             var tmps  = empty.GetComponentsInChildren<TextMeshProUGUI>();
-            if (tmps.Length > 0) tmps[0].SetText("ยังไม่มีประวัติการเล่น");
+            if (tmps.Length > 0) tmps[0].SetText("No history yet");
             return;
         }
 
@@ -71,6 +95,9 @@ public class StartSceneUI : MonoBehaviour
             var rec  = records[i];
             var item = Instantiate(historyItemPrefab, historyContent);
             var tmps = item.GetComponentsInChildren<TextMeshProUGUI>();
+            Debug.Log($"Item TMP count = {tmps.Length}");
+            foreach (var t in tmps)
+                Debug.Log($"TMP name = {t.gameObject.name}");
 
             foreach (var t in tmps)
             {
@@ -85,11 +112,9 @@ public class StartSceneUI : MonoBehaviour
         }
     }
 
-    public void OnStartPressed()
-    {
-        SceneManager.LoadScene(gameplaySceneName);
-    }
-
+    // ================================================================
+    //  Option
+    // ================================================================
     public void OnOptionPressed()
     {
         if (optionPanel == null) return;
@@ -98,6 +123,15 @@ public class StartSceneUI : MonoBehaviour
 
     public void OnCloseOptionPressed()
     {
-        if (optionPanel != null) optionPanel.SetActive(false);
+        if (optionPanel != null)
+            optionPanel.SetActive(false);
+    }
+
+    // ================================================================
+    //  Start Game
+    // ================================================================
+    public void OnStartPressed()
+    {
+        SceneManager.LoadScene(gameplaySceneName);
     }
 }

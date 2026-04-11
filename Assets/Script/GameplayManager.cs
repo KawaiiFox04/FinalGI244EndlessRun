@@ -234,7 +234,9 @@ public class GameplayManager : MonoBehaviour
             GameData.BestScore = GameData.CurrentScore;
 
         GameData.SaveRecord(new RunRecord(GameData.CurrentScore, GameData.CurrentCoins));
-
+        
+        Debug.Log($"Saving Record: Score={Mathf.FloorToInt(_score)} Coins={_coins}");
+            
         StartCoroutine(LoadGameOverAfterDelay(1.5f));
     }
 
