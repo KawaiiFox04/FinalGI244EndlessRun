@@ -198,14 +198,34 @@ public class GameplayManager : MonoBehaviour
             yield return new WaitForSeconds(sizeChangeInterval);
             if (!_isPlaying) break;
 
+            // ย่อ Player
             if (player != null) player.SetSmallSize(true);
-            ShowStatus("SMALL!");
 
+            // ย่อ Obstacle และ Item ทั้งหมดที่ Active อยู่
+            SetWorldObjectsScale(0.5f);
+
+            ShowStatus("SMALL!");
             yield return new WaitForSeconds(smallDuration);
 
+            // คืนขนาดปกติ
             if (player != null) player.SetSmallSize(false);
+            SetWorldObjectsScale(1f);
+
             ShowStatus("");
         }
+    }
+
+    private void SetWorldObjectsScale(float scale)
+    {
+        // ย่อ/ขยาย Obstacle ทั้งหมด
+        var obstacles = FindObjectsByType<Obstacle3D>(FindObjectsSortMode.None);
+        foreach (var obs in obstacles)
+            obs.transform.localScale = Vector3.one * scale;
+
+        // ย่อ/ขยาย Item ทั้งหมด
+        var items = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None);
+        foreach (var item in items)
+            item.transform.localScale = Vector3.one * scale;
     }
 
     private void ShowStatus(string msg)
@@ -234,9 +254,7 @@ public class GameplayManager : MonoBehaviour
             GameData.BestScore = GameData.CurrentScore;
 
         GameData.SaveRecord(new RunRecord(GameData.CurrentScore, GameData.CurrentCoins));
-        
-        Debug.Log($"Saving Record: Score={Mathf.FloorToInt(_score)} Coins={_coins}");
-            
+
         StartCoroutine(LoadGameOverAfterDelay(1.5f));
     }
 

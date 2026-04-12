@@ -1230,7 +1230,7 @@ MonoBehaviour:
   spawnX: 12
   spawnZ: 0
   spawnYPositions:
-  - 0
+  - 0.5
   initialSpeed: 6
   maxSpeed: 18
   speedIncreaseRate: 0.08
@@ -1656,7 +1656,7 @@ MonoBehaviour:
   healSpawnInterval: 30
   healSpawnX: 12
   itemSpawnYPositions:
-  - 0
+  - 0.5
   - 1.5
   coinItemPrefab: {fileID: 5607311426765907741, guid: f4f29cf12be94ea44a16dbc54781a60d, type: 3}
   coinSpawnInterval: 3

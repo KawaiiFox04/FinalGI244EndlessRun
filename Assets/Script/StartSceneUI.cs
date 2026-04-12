@@ -33,6 +33,9 @@ public class StartSceneUI : MonoBehaviour
         if (musicToggle != null) musicToggle.isOn = GameData.IsMusicOn;
         if (sfxToggle   != null) sfxToggle.isOn   = GameData.IsSfxOn;
 
+        // เล่นเพลง StartScene
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayStartBGM();
+
         if (optionPanel  != null) optionPanel.SetActive(false);
         if (historyPanel != null) historyPanel.SetActive(false);
 
@@ -40,10 +43,16 @@ public class StartSceneUI : MonoBehaviour
         if (optionButton  != null) optionButton.onClick.AddListener(OnOptionPressed);
         if (historyButton != null) historyButton.onClick.AddListener(OnHistoryPressed);
 
-        if (musicToggle != null) musicToggle.onValueChanged.AddListener(v => GameData.IsMusicOn = v);
-        if (sfxToggle   != null) sfxToggle.onValueChanged.AddListener(v => GameData.IsSfxOn     = v);
-        string raw = PlayerPrefs.GetString("RunHistory", "EMPTY");
-        Debug.Log($"Raw History = {raw}");
+        if (musicToggle != null) musicToggle.onValueChanged.AddListener(v =>
+        {
+            GameData.IsMusicOn = v;
+            if (AudioManager.Instance != null) AudioManager.Instance.SetMusic(v);
+        });
+        if (sfxToggle != null) sfxToggle.onValueChanged.AddListener(v =>
+        {
+            GameData.IsSfxOn = v;
+            if (AudioManager.Instance != null) AudioManager.Instance.SetSFX(v);
+        });
     }
 
     // ================================================================
@@ -80,7 +89,6 @@ public class StartSceneUI : MonoBehaviour
             Destroy(child.gameObject);
 
         var records = GameData.GetHistory();
-        Debug.Log($"History Count = {records.Count}");
 
         if (records.Count == 0)
         {
@@ -95,9 +103,6 @@ public class StartSceneUI : MonoBehaviour
             var rec  = records[i];
             var item = Instantiate(historyItemPrefab, historyContent);
             var tmps = item.GetComponentsInChildren<TextMeshProUGUI>();
-            Debug.Log($"Item TMP count = {tmps.Length}");
-            foreach (var t in tmps)
-                Debug.Log($"TMP name = {t.gameObject.name}");
 
             foreach (var t in tmps)
             {
@@ -132,6 +137,7 @@ public class StartSceneUI : MonoBehaviour
     // ================================================================
     public void OnStartPressed()
     {
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayButtonClick();
         SceneManager.LoadScene(gameplaySceneName);
     }
 }
