@@ -83,6 +83,9 @@ public class GameplayManager : MonoBehaviour
         RefreshCoinUI();
         if (statusText != null) statusText.SetText("");
 
+        // เล่นเพลง Gameplay
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBGM();
+
         if (player != null) player.ResetPlayer();
         if (spawner != null) spawner.StartGame();
 
@@ -261,6 +264,8 @@ public class GameplayManager : MonoBehaviour
     private IEnumerator LoadGameOverAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
+        // หยุดเพลง Gameplay ก่อนเปลี่ยน Scene
+        if (AudioManager.Instance != null) AudioManager.Instance.StopBGM();
         SceneManager.LoadScene(gameOverSceneName);
     }
 }

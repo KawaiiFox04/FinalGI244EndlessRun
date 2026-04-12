@@ -24,8 +24,13 @@ public class GameOverUI : MonoBehaviour
     {
         SetupScoreDisplay();
 
+        // เล่นเพลง GameOver
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayGameOverBGM();
+
+        // เปิด HistoryPanel ทันทีและโหลดข้อมูลเลย
         if (historyPanel != null)
-            historyPanel.SetActive(false);
+            historyPanel.SetActive(true);
+        LoadHistory();
     }
 
     // ================================================================
@@ -74,11 +79,13 @@ public class GameOverUI : MonoBehaviour
     // ================================================================
     public void OnRestartPressed()
     {
+        if (AudioManager.Instance != null) AudioManager.Instance.StopBGM();
         SceneManager.LoadScene(gameplaySceneName);
     }
 
     public void OnMainMenuPressed()
     {
+        if (AudioManager.Instance != null) AudioManager.Instance.StopBGM();
         SceneManager.LoadScene(startSceneName);
     }
 
@@ -93,13 +100,6 @@ public class GameOverUI : MonoBehaviour
     // ================================================================
     //  History Panel
     // ================================================================
-    public void OnHistoryPressed()
-    {
-        if (historyPanel == null) return;
-        historyPanel.SetActive(true);
-        LoadHistory();
-    }
-
     public void OnCloseHistoryPressed()
     {
         if (historyPanel != null)
