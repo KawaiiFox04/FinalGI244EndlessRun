@@ -748,7 +748,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   musicSource: {fileID: 399656973}
   sfxSource: {fileID: 399656972}
-  bgmStartScene: {fileID: 8300000, guid: d1b057591dcce364b856efacfc7af639, type: 3}
+  bgmStartScene: {fileID: 8300000, guid: af0a333d8f6bbf942adef1c67955a47b, type: 3}
   bgmGameplay: {fileID: 8300000, guid: d1b057591dcce364b856efacfc7af639, type: 3}
   bgmGameOver: {fileID: 8300000, guid: 8ee693aebd71f954b93c0c9809587d58, type: 3}
   sfxJump: {fileID: 0}

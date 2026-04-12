@@ -9,13 +9,13 @@ public class AudioManager : MonoBehaviour
     [Header("Audio Sources")]
     public AudioSource musicSource;   // สำหรับเพลงพื้นหลัง (loop)
     public AudioSource sfxSource;     // สำหรับเสียง Effect
-
-    [Header("BGM (ลากไฟล์เสียงใส่ได้เลย)")]
+    
+    [Header("BGM")]
     public AudioClip bgmStartScene;   // เพลงหน้า Start
     public AudioClip bgmGameplay;     // เพลงหน้า Gameplay
     public AudioClip bgmGameOver;     // เพลงหน้า Game Over
-
-    [Header("SFX (ลากไฟล์เสียงใส่ได้เลย)")]
+    
+    [Header("SFX")]
     public AudioClip sfxJump;         // เสียงกระโดด
     public AudioClip sfxHit;          // เสียงโดน Damage
     public AudioClip sfxDie;          // เสียงตาย
