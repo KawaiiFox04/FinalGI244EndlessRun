@@ -38,13 +38,16 @@ public class CollectibleItem : MonoBehaviour
             case ItemType.Coin:
                 if (GameplayManager.Instance != null)
                     GameplayManager.Instance.AddCoin(coinValue);
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayCoin();
                 break;
             case ItemType.Heal:
                 pc.Heal(healValue);
+                if (AudioManager.Instance != null) AudioManager.Instance.PlayHeal();
                 break;
             case ItemType.SpeedBoost:
                 if (GameplayManager.Instance != null)
                     GameplayManager.Instance.ActivateSpeedBoost();
+                if (AudioManager.Instance != null) AudioManager.Instance.PlaySpeedBoost();
                 break;
         }
 

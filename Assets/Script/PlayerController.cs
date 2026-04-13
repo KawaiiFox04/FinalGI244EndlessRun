@@ -113,6 +113,7 @@ public class PlayerController : MonoBehaviour
             _rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             _jumpCount++;
             if (_anim != null) _anim.SetTrigger(JumpHash);
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayJump();
         }
     }
 
@@ -135,6 +136,7 @@ public class PlayerController : MonoBehaviour
             _isInvincibleFrame = true;
             _invincibleTimer   = invincibleDuration;
             if (_anim != null) _anim.SetTrigger(HitHash);
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayHit();
         }
     }
 
@@ -145,6 +147,7 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Player died!");
         _rb.linearVelocity = Vector3.zero;
         if (_anim != null) _anim.SetTrigger(DieHash);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayDie();
         if (GameplayManager.Instance != null)
             GameplayManager.Instance.OnPlayerDied();
     }
