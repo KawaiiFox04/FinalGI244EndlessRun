@@ -752,12 +752,12 @@ MonoBehaviour:
   bgmGameplay: {fileID: 8300000, guid: d1b057591dcce364b856efacfc7af639, type: 3}
   bgmGameOver: {fileID: 8300000, guid: 8ee693aebd71f954b93c0c9809587d58, type: 3}
   sfxJump: {fileID: 8300000, guid: 874f76bea60430e46aadcaf4b1835afa, type: 3}
-  sfxHit: {fileID: 0}
-  sfxDie: {fileID: 0}
+  sfxHit: {fileID: 8300000, guid: d2560aa1847bb9b4f811bc5d483e5da9, type: 3}
+  sfxDie: {fileID: 8300000, guid: 8d02e57c8bfa6344884b06202e213847, type: 3}
   sfxCoin: {fileID: 8300000, guid: c996fd0f34ea4fb42900eba73c7a1dd5, type: 3}
   sfxHeal: {fileID: 8300000, guid: 1f9cb6af690ee0b4eac4937bea7a73a0, type: 3}
   sfxSpeedBoost: {fileID: 8300000, guid: 2b253e814556602448e8b934270af14e, type: 3}
-  sfxButtonClick: {fileID: 0}
+  sfxButtonClick: {fileID: 8300000, guid: aeae7c18f164094499ed0b0d5b5064d4, type: 3}
 --- !u!82 &399656972
 AudioSource:
   m_ObjectHideFlags: 0
