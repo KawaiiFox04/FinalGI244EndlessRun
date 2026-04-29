@@ -9,11 +9,11 @@ public class GameOverUI : MonoBehaviour
     public string startSceneName    = "StartScene";
 
     [Header("Score UI")]
-    public TextMeshProUGUI currentScoreText;  // แสดงคะแนนรอบนี้
-    public TextMeshProUGUI bestScoreText;     // แสดงคะแนนสูงสุด
-    public TextMeshProUGUI compareText;       // "Better than Best" หรือ "Below Best"
-    public TextMeshProUGUI newRecordText;     // "NEW HIGH SCORE!" ซ่อนไว้ถ้าไม่ใช่ Record
-    public TextMeshProUGUI coinEarnedText;    // เหรียญที่ได้รอบนี้
+    public TextMeshProUGUI currentScoreText;  
+    public TextMeshProUGUI bestScoreText;     
+    public TextMeshProUGUI compareText;      
+    public TextMeshProUGUI newRecordText;     
+    public TextMeshProUGUI coinEarnedText;   
 
     [Header("History Panel")]
     public GameObject historyPanel;
@@ -23,42 +23,32 @@ public class GameOverUI : MonoBehaviour
     private void Start()
     {
         SetupScoreDisplay();
-
-        // เล่นเพลง GameOver
+        
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameOverBGM();
-
-        // เปิด HistoryPanel ทันทีและโหลดข้อมูลเลย
+        
         if (historyPanel != null)
             historyPanel.SetActive(true);
         LoadHistory();
     }
-
-    // ================================================================
-    //  แสดงผล Score
-    // ================================================================
+    
     private void SetupScoreDisplay()
     {
         int current     = GameData.CurrentScore;
         int best        = GameData.BestScore;
         int coinsEarned = GameData.CurrentCoins;
-
-        // คะแนนรอบนี้
+        
         if (currentScoreText != null)
             currentScoreText.SetText($"Score: {current:N0}");
-
-        // คะแนนสูงสุด
+        
         if (bestScoreText != null)
             bestScoreText.SetText($"Best: {best:N0}");
-
-        // เหรียญที่ได้
+        
         if (coinEarnedText != null)
             coinEarnedText.SetText($"Coin: +{coinsEarned}");
-
-        // เปรียบเทียบกับ Best Score
+        
         int diff = current - best;
         if (diff > 0)
         {
-            // ทำลาย Record ใหม่
             if (compareText   != null) compareText.SetText($"Better than Best +{diff:N0} pts!");
             if (newRecordText != null) newRecordText.gameObject.SetActive(true);
         }
@@ -73,10 +63,7 @@ public class GameOverUI : MonoBehaviour
             if (newRecordText != null) newRecordText.gameObject.SetActive(false);
         }
     }
-
-    // ================================================================
-    //  Buttons
-    // ================================================================
+    
     public void OnRestartPressed()
     {
         if (AudioManager.Instance != null) AudioManager.Instance.StopBGM();
@@ -96,10 +83,7 @@ public class GameOverUI : MonoBehaviour
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
-
-    // ================================================================
-    //  History Panel
-    // ================================================================
+    
     public void OnCloseHistoryPressed()
     {
         if (historyPanel != null)

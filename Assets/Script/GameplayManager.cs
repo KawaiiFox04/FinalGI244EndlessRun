@@ -26,7 +26,7 @@ public class GameplayManager : MonoBehaviour
 
     [Header("Heal Item")]
     public GameObject healItemPrefab;
-    public float      healSpawnInterval  = 30f;  // Spawn ทุก 30 วินาที
+    public float      healSpawnInterval  = 30f;  
     public float      healSpawnX         = 12f;
     public float[]    itemSpawnYPositions = { 0f, 1.5f };
 
@@ -36,7 +36,7 @@ public class GameplayManager : MonoBehaviour
 
     [Header("SpeedBoost Item")]
     public GameObject speedBoostItemPrefab;
-    public float      speedBoostSpawnInterval = 15f;  // Spawn ทุก 15 วินาที
+    public float      speedBoostSpawnInterval = 15f;  
     public float      speedBoostDuration      = 5f;
 
     [Header("Camera Flip")]
@@ -82,8 +82,7 @@ public class GameplayManager : MonoBehaviour
 
         RefreshCoinUI();
         if (statusText != null) statusText.SetText("");
-
-        // เล่นเพลง Gameplay
+        
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayBGM();
 
         if (player != null) player.ResetPlayer();
@@ -200,17 +199,14 @@ public class GameplayManager : MonoBehaviour
         {
             yield return new WaitForSeconds(sizeChangeInterval);
             if (!_isPlaying) break;
-
-            // ย่อ Player
+            
             if (player != null) player.SetSmallSize(true);
-
-            // ย่อ Obstacle และ Item ทั้งหมดที่ Active อยู่
+            
             SetWorldObjectsScale(0.5f);
 
             ShowStatus("SMALL!");
             yield return new WaitForSeconds(smallDuration);
-
-            // คืนขนาดปกติ
+            
             if (player != null) player.SetSmallSize(false);
             SetWorldObjectsScale(1f);
 
@@ -220,12 +216,10 @@ public class GameplayManager : MonoBehaviour
 
     private void SetWorldObjectsScale(float scale)
     {
-        // ย่อ/ขยาย Obstacle ทั้งหมด
         var obstacles = FindObjectsByType<Obstacle3D>(FindObjectsSortMode.None);
         foreach (var obs in obstacles)
             obs.transform.localScale = Vector3.one * scale;
-
-        // ย่อ/ขยาย Item ทั้งหมด
+        
         var items = FindObjectsByType<CollectibleItem>(FindObjectsSortMode.None);
         foreach (var item in items)
             item.transform.localScale = Vector3.one * scale;
@@ -264,7 +258,6 @@ public class GameplayManager : MonoBehaviour
     private IEnumerator LoadGameOverAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        // หยุดเพลง Gameplay ก่อนเปลี่ยน Scene
         if (AudioManager.Instance != null) AudioManager.Instance.StopBGM();
         SceneManager.LoadScene(gameOverSceneName);
     }

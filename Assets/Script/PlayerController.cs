@@ -38,8 +38,7 @@ public class PlayerController : MonoBehaviour
     private float   _originalColHeight;
     private Vector3 _originalColCenter;
     private Vector3 _originalScale;
-
-    // Animator Hash
+    
     private static readonly int JumpHash  = Animator.StringToHash("Jump");
     private static readonly int HitHash   = Animator.StringToHash("Hit");
     private static readonly int DieHash   = Animator.StringToHash("Die");
@@ -80,14 +79,11 @@ public class PlayerController : MonoBehaviour
 
     private void CheckGround()
     {
-        // ใช้ _originalColHeight เสมอ ไม่ว่าจะ Small หรือไม่
-        // ป้องกัน Raycast สั้นลงตอน SetSmallSize แล้ว jumpCount ถูก Reset ผิด
         Vector3 origin      = transform.position + _originalColCenter;
         float   len         = _originalColHeight * 0.5f + groundCheckDist;
         bool    wasOnGround = _isGrounded;
         _isGrounded = Physics.Raycast(origin, Vector3.down, len, groundLayer);
-
-        // Reset jumpCount เฉพาะตอนที่เพิ่ง Landing
+        
         if (_isGrounded && !wasOnGround)
             _jumpCount = 0;
 

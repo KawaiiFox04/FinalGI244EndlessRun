@@ -1,28 +1,26 @@
 using UnityEngine;
 
-// ติดไว้ที่ Empty GameObject ชื่อ "AudioManager" ใน StartScene
-// ใช้ DontDestroyOnLoad เพื่อให้เสียงไม่ขาดตอนเปลี่ยน Scene
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
 
     [Header("Audio Sources")]
-    public AudioSource musicSource;   // สำหรับเพลงพื้นหลัง (loop)
-    public AudioSource sfxSource;     // สำหรับเสียง Effect
+    public AudioSource musicSource;   
+    public AudioSource sfxSource;    
     
     [Header("BGM")]
-    public AudioClip bgmStartScene;   // เพลงหน้า Start
-    public AudioClip bgmGameplay;     // เพลงหน้า Gameplay
-    public AudioClip bgmGameOver;     // เพลงหน้า Game Over
+    public AudioClip bgmStartScene;   
+    public AudioClip bgmGameplay;     
+    public AudioClip bgmGameOver;     
     
     [Header("SFX")]
-    public AudioClip sfxJump;         // เสียงกระโดด
-    public AudioClip sfxHit;          // เสียงโดน Damage
-    public AudioClip sfxDie;          // เสียงตาย
-    public AudioClip sfxCoin;         // เสียงเก็บ Coin
-    public AudioClip sfxHeal;         // เสียงเก็บ Heal
-    public AudioClip sfxSpeedBoost;   // เสียงเก็บ SpeedBoost
-    public AudioClip sfxButtonClick;  // เสียงกดปุ่ม
+    public AudioClip sfxJump;        
+    public AudioClip sfxHit;          
+    public AudioClip sfxDie;          
+    public AudioClip sfxCoin;        
+    public AudioClip sfxHeal;         
+    public AudioClip sfxSpeedBoost;   
+    public AudioClip sfxButtonClick;  
 
     private void Awake()
     {
@@ -36,10 +34,7 @@ public class AudioManager : MonoBehaviour
 
         ApplySettings();
     }
-
-    // ================================================================
-    //  Apply Settings จาก GameData
-    // ================================================================
+    
     public void ApplySettings()
     {
         if (musicSource != null)
@@ -47,10 +42,7 @@ public class AudioManager : MonoBehaviour
         if (sfxSource != null)
             sfxSource.mute = !GameData.IsSfxOn;
     }
-
-    // ================================================================
-    //  BGM
-    // ================================================================
+    
     public void PlayBGM(AudioClip clip)
     {
         if (musicSource == null || clip == null) return;
@@ -69,10 +61,7 @@ public class AudioManager : MonoBehaviour
     public void PlayStartBGM()    => PlayBGM(bgmStartScene);
     public void PlayGameplayBGM() => PlayBGM(bgmGameplay);
     public void PlayGameOverBGM() => PlayBGM(bgmGameOver);
-
-    // ================================================================
-    //  SFX
-    // ================================================================
+    
     public void PlaySFX(AudioClip clip)
     {
         if (sfxSource == null || clip == null) return;
@@ -86,10 +75,7 @@ public class AudioManager : MonoBehaviour
     public void PlayHeal()        => PlaySFX(sfxHeal);
     public void PlaySpeedBoost()  => PlaySFX(sfxSpeedBoost);
     public void PlayButtonClick() => PlaySFX(sfxButtonClick);
-
-    // ================================================================
-    //  Toggle Music / SFX (เรียกจาก Toggle ใน Option Panel)
-    // ================================================================
+    
     public void SetMusic(bool isOn)
     {
         GameData.IsMusicOn = isOn;
