@@ -32,8 +32,7 @@ public class StartSceneUI : MonoBehaviour
 
         if (musicToggle != null) musicToggle.isOn = GameData.IsMusicOn;
         if (sfxToggle   != null) sfxToggle.isOn   = GameData.IsSfxOn;
-
-        // เล่นเพลง StartScene
+        
         if (AudioManager.Instance != null) AudioManager.Instance.PlayStartBGM();
 
         if (optionPanel  != null) optionPanel.SetActive(false);
@@ -54,19 +53,13 @@ public class StartSceneUI : MonoBehaviour
             if (AudioManager.Instance != null) AudioManager.Instance.SetSFX(v);
         });
     }
-
-    // ================================================================
-    //  Coin
-    // ================================================================
+    
     private void RefreshCoinDisplay()
     {
         if (totalCoinText != null)
             totalCoinText.SetText($"Coin: {GameData.TotalCoins:N0}");
     }
-
-    // ================================================================
-    //  History
-    // ================================================================
+    
     public void OnHistoryPressed()
     {
         if (historyPanel == null) return;
@@ -83,8 +76,7 @@ public class StartSceneUI : MonoBehaviour
     private void LoadHistory()
     {
         if (historyContent == null || historyItemPrefab == null) return;
-
-        // ลบของเก่าออกก่อน
+        
         foreach (Transform child in historyContent)
             Destroy(child.gameObject);
 
@@ -116,10 +108,7 @@ public class StartSceneUI : MonoBehaviour
             }
         }
     }
-
-    // ================================================================
-    //  Option
-    // ================================================================
+    
     public void OnOptionPressed()
     {
         if (optionPanel == null) return;
@@ -131,10 +120,7 @@ public class StartSceneUI : MonoBehaviour
         if (optionPanel != null)
             optionPanel.SetActive(false);
     }
-
-    // ================================================================
-    //  Start Game
-    // ================================================================
+    
     public void OnStartPressed()
     {
         if (AudioManager.Instance != null) AudioManager.Instance.PlayButtonClick();

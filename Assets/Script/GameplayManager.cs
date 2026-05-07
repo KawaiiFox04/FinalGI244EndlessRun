@@ -181,6 +181,11 @@ public class GameplayManager : MonoBehaviour
             yield return new WaitForSeconds(flipInterval);
             if (!_isPlaying) break;
 
+            // นับถอยหลัง 3, 2, 1 ก่อน
+            yield return StartCoroutine(CountdownRoutine());
+            if (!_isPlaying) break;
+
+            // หมุนกล้องแล้วขึ้น "FLIP!"
             if (mainCamera != null)
                 mainCamera.transform.rotation = Quaternion.Euler(0f, 0f, 180f);
             ShowStatus("FLIP!");
@@ -190,6 +195,17 @@ public class GameplayManager : MonoBehaviour
             if (mainCamera != null)
                 mainCamera.transform.rotation = Quaternion.identity;
             ShowStatus("");
+        }
+    }
+
+    private IEnumerator CountdownRoutine()
+    {
+        string[] counts = { "3", "2", "1" };
+        foreach (string count in counts)
+        {
+            if (!_isPlaying) yield break;
+            ShowStatus(count);
+            yield return new WaitForSeconds(1f);
         }
     }
 
